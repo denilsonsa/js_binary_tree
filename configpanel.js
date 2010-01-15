@@ -1,23 +1,7 @@
 // vi:ts=4:sw=4
 
-// Brainstorm:
-//
-// Done:
-// - ConfigPanel.config_obj = some TreeConfig obj.
-// - .form must be a property with getter/setter, and there must be a "relatedObject" property inside form element.
-//
-// Done, but must be changed:
-// - ConfigPanel._form_       = <form> element
-// - ConfigPanel.setform() -> set this._form_ and calls above methods
-// - ConfigPanel.getform() -> getter (I think it is easier to NOT use getter/setter for this.form)
-//
 // TODO:
-// - ConfigPanel.addEventListeners() -> will add event listeners to this._form_ and its children
-// - ConfigPanel.removeEventListeners() -> will remove event listeners from this._form_ and its children
-// - The "reset" button should be of type "reset", and .reset_form() must be called at form.onReset.
-// - Update documentation about .form getter/setter.
-// - Add a notice about need of adding a second "submit" event listener, to call "tree.update_positions()".
-//   Or add a callback function as property (like this.on_submit_callback). (this second option is better, one of the reasons is the "auto-apply" feature)
+// - Update documentation about .form getter/setter. In fact, review and update the entire documentation.
 //
 // Useful notes:
 // - Text elements have these events: blur, focus, <change>, select.
@@ -51,8 +35,10 @@
  *  -constructor:
  *     new ConfigPanel()
  *  -properties:
- *     treeconfig		// Points to the TreeConfig object attached to this panel
+ *     treeconfig		// Points to the TreeConfig object attached to this panel.
  *     _form_			// Points to form element attached to this panel.
+ *     apply_callback	// Points to a function to be called whenever any change is applied.
+ *     auto_apply		// Boolean, should changes be applied as soon as they are detected? (if false, changes are only applied on submit)
  *  -properties with getter and setter:
  *     form				// Points to form element attached to this panel.
  *  -static properties:
@@ -60,21 +46,33 @@
  *     boolean_fields	// List (array) of names of boolean config values. Correspondent form elements must be of type "checkbox".
  *  -methods:
  *     toString()
- *     reset_form()			// Fills form with values from treeconfig
+ *     reset_form()				// Fills form with values from treeconfig.
+ *     apply_changes()			// Update treeconfig from form values.
  *
- *     addEventListeners()	// Add event listeners to current form's fields.
+ *     addEventListeners()		// Add event listeners to current form's fields.
  *     removeEventListeners()	// Remove event listeners to current form's fields.
+ *
+ *     // The following methods are added as listeners to form and form fields elements.
+ *     // Even though they are methods of this object, they must NOT be called from this object.
+ *     // They assume "this" points to "listened" object.
+ *     // They are methods just to not leave them as global functions.
+ *     listener_form_submit(ev)
+ *     listener_form_reset(ev)
+ *     listener_field_has_changed(ev)
  * }}} */
 // {{{
 function ConfigPanel() {
 	this.treeconfig=null;
 	this._form_=null;
+	this.apply_callback=null;
+	this.auto_apply=false;
 }
 
 ConfigPanel.prototype.toString = function() { return '[object ConfigPanel]'; };
 
 ConfigPanel.prototype.integer_fields = [ "node_width","node_height","inter_tree_space" ];
 ConfigPanel.prototype.boolean_fields = [ "draw_lines","center_parent","debug_recalculate_subtree_width","debug_recalculate_positions" ];
+
 
 
 ConfigPanel.prototype.reset_form = function() {
@@ -93,29 +91,114 @@ ConfigPanel.prototype.apply_changes = function() {
 	var e;
 	for(var i=0; i<this.integer_fields.length; i++)
 		if( e=this._form_[this.integer_fields[i]] )	// If the element exists
-			this.treeconfig[this.integer_fields[i]] = parseInt(e.value) ;
+			if( !isNaN(parseInt(e.value)) )
+				this.treeconfig[this.integer_fields[i]] = parseInt(e.value) ;
 	for(var i=0; i<this.boolean_fields.length; i++)
 		if( e=this._form_[this.boolean_fields[i]] )	// If the element exists
 			this.treeconfig[this.boolean_fields[i]] = e.checked;
+	if( this.apply_callback )
+		this.apply_callback();
 };
+
+
+
+ConfigPanel.prototype.listener_form_submit = function(ev) {
+	ev.preventDefault();
+	if( this.relatedObject )
+		this.relatedObject.apply_changes();
+};
+
+ConfigPanel.prototype.listener_form_reset = function(ev) {
+	ev.preventDefault();
+	if( this.relatedObject )
+		this.relatedObject.reset_form();
+};
+
+ConfigPanel.prototype.listener_field_has_changed = function(ev) {
+	if( !this.name ) return;
+	if( !this.type ) return;
+	if( !this.form ) return;
+	if( !this.form.relatedObject ) return;
+
+	var configpanel=this.form.relatedObject;
+
+	if( this.name == "configpanel_auto_apply" ) {
+		configpanel.auto_apply=this.checked;
+		if( configpanel.auto_apply )
+			configpanel.apply_changes();
+	}
+	else {
+
+		if( !configpanel.auto_apply ) return;
+
+		var i;
+		if( this.type.toLowerCase()=="checkbox" ) {
+			// Find if the property exists
+			for(i=0; i<configpanel.boolean_fields.length; i++)
+				if( configpanel.boolean_fields[i]==this.name )
+					break;
+			if( i<configpanel.boolean_fields.length ) {
+				configpanel.treeconfig[this.name]=this.checked;
+				if( configpanel.apply_callback )
+					configpanel.apply_callback();
+			}
+		}
+		else if( this.type.toLowerCase()=="text" ) {
+			// Find if the property exists
+			for(i=0; i<configpanel.integer_fields.length; i++)
+				if( configpanel.integer_fields[i]==this.name )
+					break;
+			if( i<configpanel.integer_fields.length )
+				if( !isNaN(parseInt(this.value)) ) {
+					configpanel.treeconfig[this.name]=parseInt(this.value);
+					if( configpanel.apply_callback )
+						configpanel.apply_callback();
+				}
+		}
+	}
+};
+
 
 
 ConfigPanel.prototype.addEventListeners = function() {
-	append_debug(this+'.addEventListeners() called. This should add event listeners to form\'s fields. Only form submit and reset events were added, all others are missing yet.\n');
-	this._form_.addEventListener("submit",function(){this.relatedObject.apply_changes()},false);
-	this._form_.addEventListener("reset" ,function(){this.relatedObject.reset_form()},false);
+	if( !this._form_ ) return;
+	this._form_.addEventListener("submit",this.listener_form_submit,false);
+	this._form_.addEventListener("reset" ,this.listener_form_reset,false);
+
+	var e;
+	for(var i=0; i<this.integer_fields.length; i++)
+		if( e=this._form_[this.integer_fields[i]] )
+			e.addEventListener("change",this.listener_field_has_changed,false);
+	for(var i=0; i<this.boolean_fields.length; i++)
+		if( e=this._form_[this.boolean_fields[i]] )
+			e.addEventListener("click",this.listener_field_has_changed,false);  // This will not work well if the click event is called BEFORE this.checked has changed.
+	if( e=this._form_["configpanel_auto_apply"] )
+		e.addEventListener("click",this.listener_field_has_changed,false);
 };
 ConfigPanel.prototype.removeEventListeners = function() {
-	append_debug(this+'.removeEventListeners() called. This should remove event listeners to form\'s fields. Yet to be implemented.\n');
+	if( !this._form_ ) return;
+	this._form_.removeEventListener("submit",this.listener_form_submit,false);
+	this._form_.removeEventListener("reset" ,this.listener_form_reset,false);
+
+	var e;
+	for(var i=0; i<this.integer_fields.length; i++)
+		if( e=this._form_[this.integer_fields[i]] )
+			e.removeEventListener("change",this.listener_field_has_changed,false);
+	for(var i=0; i<this.boolean_fields.length; i++)
+		if( e=this._form_[this.boolean_fields[i]] )
+			e.removeEventListener("click",this.listener_field_has_changed,false);
+	if( e=this._form_["configpanel_auto_apply"] )
+		e.removeEventListener("click",this.listener_field_has_changed,false);
 };
+
 
 
 ConfigPanel.prototype.getform = function() { return this._form_; };
 
 ConfigPanel.prototype.setform = function( newform ) {
 	if( this._form_ ) {
-		delete this._form_.relatedObject;
 		this.removeEventListeners();
+		delete this._form_.relatedObject;
 	}
 	if( newform ) {
 		if( newform.relatedObject ) {

@@ -26,8 +26,10 @@
  * 2006-05-08: Small change to interface, basic support for .linehackcontainer added.
  *             Splitted JavaScript code into different files, one for each class/object.
  * 2006-05-09: ConfigPanel object half-implemented. Now the code is much cleaner and easier to maintain.
+ * 2006-05-10: Now the input boxes are validated, and NaN will be ignored.
+ *             ConfigPanel object is almost finished.
  */
-var document_last_change="2006-05-09";
+var document_last_change="2006-05-10";
 
 
 //////////////////////////////////////////////////////////////////////
@@ -46,16 +48,20 @@ function on_load() {
 	configpanel.setform(configform);
 	configpanel.reset_form();
 
-	configform.addEventListener("submit",function(){tree.update_positions();},false);
+	configpanel.apply_callback=function(){tree.update_positions();};
 
 	document.getElementById("configpaneltoggle").addEventListener("click" ,configpanel_toggle_visibility,false);
 	document.getElementById("configpanelclose" ).addEventListener("click" ,configpanel_hide,false);
-
-	return;
 }
 
 
-window.addEventListener('load',on_load,false);
+
+// See the end of "More than basic events" section at
+// http://www.howtocreate.co.uk/tutorials/javascript/domevents
+// to understand why I need to try to add event listeners on both window and document objects.
+
+if( window.addEventListener )        window.addEventListener('load',on_load,false);
+else if( document.addEventListener ) document.addEventListener('load',on_load,false);
 
 
 
@@ -84,7 +90,8 @@ function insert_values() {
 	if( !e ) return;
 	var a=e.value.split(/[ ,;]+/);
 	for(var i=0; i<a.length; i++)
-		append_debug( 'insert('+parseInt(a[i])+'): '+tree.insert(parseInt(a[i])) +'\n');
+		if( !isNaN(parseInt(a[i])) )
+			append_debug( 'insert('+parseInt(a[i])+'): '+tree.insert(parseInt(a[i])) +'\n');
 	tree.update_positions();
 }
 
@@ -94,10 +101,11 @@ function search_values() {
 	if( !e ) return;
 	var a=e.value.split(/[ ,;]+/);
 	var t;
-	for(var i=0; i<a.length; i++) {
-		t=tree.search(parseInt(a[i]));
-		append_debug( 'search('+parseInt(a[i])+'): '+ t.found + ' ' + t.node +'\n');
-	}
+	for(var i=0; i<a.length; i++)
+		if( !isNaN(parseInt(a[i])) ) {
+			t=tree.search(parseInt(a[i]));
+			append_debug( 'search('+parseInt(a[i])+'): '+ t.found + ' ' + t.node +'\n');
+		}
 	tree.update_positions();
 }
 
@@ -107,7 +115,8 @@ function remove_values() {
 	if( !e ) return;
 	var a=e.value.split(/[ ,;]+/);
 	for(var i=0; i<a.length; i++)
-		tree.remove(parseInt(a[i]));
+		if( !isNaN(parseInt(a[i])) )
+			tree.remove(parseInt(a[i]));
 	tree.update_positions();
 }
 

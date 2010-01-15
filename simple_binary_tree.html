@@ -96,10 +96,10 @@ html, body, form, label, div {
 }
 
 #config form {
-	min-width: 15em;
+/*	min-width: 15em;*/
 	padding: 0.5em;
 	border: 3px double black;
-	background: #DDC;
+	background: #DDC; /* #D4CFC7 */
 }
 
 #configpaneltoggle {
@@ -137,8 +137,8 @@ html, body, form, label, div {
 }
 .prettyform .buttonrow button,
 .prettyform .buttonrow input {
-	padding-left: 1.5em;
-	padding-right: 1.5em;
+/*	padding-left: 1.5em;
+	padding-right: 1.5em;*/
 }
 </style>
 </head><body>
@@ -148,21 +148,24 @@ html, body, form, label, div {
 <div id="holder"></div>
 
 <div id="config" class="hidden">
-<form id="configform" action="javascript://" class="prettyform">
+<form id="configform" action="javascript://" class="prettyform"><div> <!-- This div is just to make HTML validate -->
+
 <label><input type="text" name="node_width" size="4"> Node width</label>
 <label><input type="text" name="node_height" size="4"> Node height</label>
 <label><input type="text" name="inter_tree_space" size="4"> Inter-tree space</label>
 <label><input type="checkbox" name="draw_lines"> Draw lines</label>
 <label><input type="checkbox" name="center_parent"> Center parent node</label>
-<label><input type="checkbox" name="debug_recalculate_subtree_width"> Debug recalculate_subtree_width()</label>
-<label><input type="checkbox" name="debug_recalculate_positions"> Debug recalculate_positions()</label>
-<label><input type="checkbox" name="auto_apply_changes"> Auto-apply changes</label>
+<!--label><input type="checkbox" name="debug_recalculate_subtree_width"> Debug recalculate_subtree_width()</label>
+<label><input type="checkbox" name="debug_recalculate_positions"> Debug recalculate_positions()</label-->
+<label><input type="checkbox" name="configpanel_auto_apply"> Auto-apply changes</label>
+
 <div class="buttonrow">
 <input type="submit" value="Apply">
 <input type="reset" value="Reset">
 <input type="button" value="Close" id="configpanelclose">
 </div>
-</form>
+
+</div></form>
 <div id="configpaneltoggle"></div>
 </div>
 
