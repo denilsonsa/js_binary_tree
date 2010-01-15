@@ -1,13 +1,5 @@
 // vi:ts=4:sw=4
 
-// TODO:
-// - Update documentation about .form getter/setter. In fact, review and update the entire documentation.
-//
-// Useful notes:
-// - Text elements have these events: blur, focus, <change>, select.
-// - Checkbox and Radio elements have these events: blur, focus, <click>.
-// - Form elements have these events: <reset>, <submit>.
-
 //////////////////////////////////////////////////////////////////////
 /* ConfigPanel documentation: {{{
  *
@@ -15,20 +7,27 @@
  *
  * The constructor does nothing special. So, after creating this object,
  * .treeconfig property must be set to a valid TreeConfig object, and
- * .set_form() method must be called to attach the ConfigPanel object to
- * a form element.
+ * .setform() method must be called to attach the ConfigPanel object to
+ * a form element. Note that .setform() will not fill the form with
+ * current .treeconfig values. You must call .reset_form() to do it.
  *
- * Note .set_form() is not a setter (or it would be called setform(), by
- * convention used in this set of scripts), but a convenience method that
- * remove listeners from old form (if exists), sets .form property and
- * add listeners to new one. The .form property is still public, without
- * getter/setter.
+ * The ConfigPanel will keep the TreeConfig object synched to HTML form,
+ * but won't touch any trees that use the TreeConfig object. For this
+ * reason, you can set .apply_callback to (a pointer to) a function that
+ * can update the tree display.
  *
- * Note also that .set_form() will not call .reset_form(), so it will not
- * fill form with current config values.
+ *
+ * Implementation notes:
  *
  * The form elements will be accessed using DOM0 syntax:
  *   this.form.elem_name  or  this.form["elem_name"]
+ *
+ * The "configpanel_auto_apply" name is hardcoded for now.
+ *
+ * Useful notes:
+ * - Text elements have these events: blur, focus, <change>, select.
+ * - Checkbox and Radio elements have these events: blur, focus, <click>.
+ * - Form elements have these events: <reset>, <submit>.
  *
  *
  * ConfigPanel object:
@@ -127,10 +126,7 @@ ConfigPanel.prototype.listener_field_has_changed = function(ev) {
 		if( configpanel.auto_apply )
 			configpanel.apply_changes();
 	}
-	else {
-
-		if( !configpanel.auto_apply ) return;
-
+	else if( configpanel.auto_apply ) {
 		var i;
 		if( this.type.toLowerCase()=="checkbox" ) {
 			// Find if the property exists
@@ -167,8 +163,10 @@ ConfigPanel.prototype.addEventListeners = function() {
 
 	var e;
 	for(var i=0; i<this.integer_fields.length; i++)
-		if( e=this._form_[this.integer_fields[i]] )
+		if( e=this._form_[this.integer_fields[i]] ) {
 			e.addEventListener("change",this.listener_field_has_changed,false);
+			e.addEventListener("keyup",this.listener_field_has_changed,false);
+		}
 	for(var i=0; i<this.boolean_fields.length; i++)
 		if( e=this._form_[this.boolean_fields[i]] )
 			e.addEventListener("click",this.listener_field_has_changed,false);  // This will not work well if the click event is called BEFORE this.checked has changed.
@@ -182,8 +180,10 @@ ConfigPanel.prototype.removeEventListeners = function() {
 
 	var e;
 	for(var i=0; i<this.integer_fields.length; i++)
-		if( e=this._form_[this.integer_fields[i]] )
+		if( e=this._form_[this.integer_fields[i]] ) {
 			e.removeEventListener("change",this.listener_field_has_changed,false);
+			e.removeEventListener("keyup",this.listener_field_has_changed,false);
+		}
 	for(var i=0; i<this.boolean_fields.length; i++)
 		if( e=this._form_[this.boolean_fields[i]] )
 			e.removeEventListener("click",this.listener_field_has_changed,false);
@@ -211,3 +211,4 @@ ConfigPanel.prototype.setform = function( newform ) {
 };
 
 // }}}
+// End of ConfigPanel object

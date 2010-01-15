@@ -3,7 +3,6 @@
 
 /* TODO:
  *
- * - Implement some interface to change configuration values.
  * - Implement "lines" to connect nodes. Should be easy, but will be a hack.
  * - Implement animation (smooth moving of current nodes when the tree
  *   structure changes).
@@ -13,8 +12,6 @@
  * - Implement a "detach_tree()" method which should detach (or reattach)
  *   the tree and all nodes.
  * - Modify the SimpleBinaryTree.setconfig() to update config on all tree nodes.
- * - Clean up the interface code. It is too messy and hardcoded now.
- * - Make "Reset" button be disabled when no change was made to config form.
  */
 
 /* ChangeLog:
@@ -26,8 +23,8 @@
  * 2006-05-08: Small change to interface, basic support for .linehackcontainer added.
  *             Splitted JavaScript code into different files, one for each class/object.
  * 2006-05-09: ConfigPanel object half-implemented. Now the code is much cleaner and easier to maintain.
- * 2006-05-10: Now the input boxes are validated, and NaN will be ignored.
- *             ConfigPanel object is almost finished.
+ * 2006-05-10: Now all input boxes are validated, and NaN will be ignored.
+ *             ConfigPanel object is now finished. The code is now much cleaner.
  */
 var document_last_change="2006-05-10";
 
@@ -135,13 +132,14 @@ function show_help() {
 "Written by Denilson F. de Sá (CrazyTerabyte)\n"+
 "Last change at "+document_last_change+"\n"+
 "\n"+
-"Written in JavaScript + DOM. Should work on any standard-compliant browser\n"+
-"that supports both technologies. Tested on Opera 8.52, 9.0 preview and Firefox\n"+
-"1.5.0.2. Opera 8.52 does not show scrollbars when tree becomes too big.\n"+
-"No, it does not work on MSIE. No, I won't make it work on MSIE. Ask Microsoft\n"+
-"to make MSIE understand web standards.\n"+
+"Written in JavaScript + DOM + CSS. Should work on any standard-compliant\n"+
+"browser that supports DOM2 and CSS2.1. Tested on Opera 8.52, 9.0 preview\n"+
+"and Firefox 1.5.0.2. Opera 8.52 does not show scrollbars when tree becomes\n"+
+"too big. No, it does not work on MSIE. No, I won't make it work on MSIE.\n"+
+"Ask Microsoft to make MSIE understand web standards.\n"+
 "\n"+
-"It took me about two days to write everything.\n"+
+"It took me about two days to write everything most of the tree code. Then,\n"+
+"I started improving it on the following days.\n"+
 "\n"+
 "This page implements a Binary Tree. It has the following operations: insert,\n"+
 "search and remove. This binary tree keeps all nodes sorted (by key). Since\n"+
@@ -149,9 +147,8 @@ function show_help() {
 "\n"+
 "The input boxes allow multiple keys to be entered at same time, just separate\n"+
 "them by space, comma or semicolon. Only integer keys are supported (this\n"+
-"limitation is written outside the binary tree code, which can support numbers,\n"+
-"both integer and floating-point, and strings). When multiple keys are entered,\n"+
-"it will be treated as executing the operation once for each key.\n"+
+"limitation is written outside the binary tree code). When multiple keys are\n"+
+"entered, it will be treated as executing the operation once for each key.\n"+
 "");
 }
 
