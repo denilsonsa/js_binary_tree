@@ -7,13 +7,24 @@
 <meta name="description" content="Interactive Simple Binary Tree written in JavaScript, using DOM.">
 <meta name="keywords" content="JavaScript, DOM, tree, binary tree, interactive">
 
+<script type="text/javascript" src="treenode.js"></script>
+<script type="text/javascript" src="simplebinarytree.js"></script>
+<script type="text/javascript" src="treeconfig.js"></script>
+<script type="text/javascript" src="configpanel.js"></script>
+<script type="text/javascript" src="main.js"></script>
+
 <!--link rel="stylesheet" type="text/css" href="tree1.css"-->
 <style type="text/css">
-html, body, form {
+html, body, form, label, div {
 	margin: 0;
 	padding: 0;
 	border: 0;
 }
+
+.bigcontainer {
+	position: relative;
+}
+
 .treenode {
 	display: block;
 	position: absolute;
@@ -36,32 +47,136 @@ html, body, form {
 	height: 20em;
 	position: relative;
 	overflow: auto;
+	background: #EEE;
+}
+
+.linehackcontainer {
+	display: block;
+	position: absolute;
+	top: 0;
+	left: 0;
+	overflow: visible;
+}
+.linehack, .linehack > * {
+	display: block;
+	position: absolute;
+	width: 0;
+	height: 0;
+	border-style: solid;
+}
+.linehack {
+	border-color: black;
+	border-top-color: transparent;
+}
+.linehack > * {
+	border-color: #EEE; /* Must be the same as background color */
+	border-top-color: transparent;
 }
 
 
 #debug {
 	background: #FAA;
 	color: black;
-	font: 1em monospace;
+	font: small monospace;
 	white-space: pre;
+	white-space: pre-wrap;
 	border: #FAA ridge 1ex;
 	padding: 1ex;
 }
-</style>
-<script type="text/javascript" src="simple_binary_tree.js"></script>
 
+#config {
+	position: absolute;
+	top: 10%;
+	right: 0;
+	padding-right: 14px;
+}
+
+#config.hidden form {
+	visibility: hidden;
+}
+
+#config form {
+	min-width: 15em;
+	padding: 0.5em;
+	border: 3px double black;
+	background: #DDC;
+}
+
+#configpaneltoggle {
+	position: absolute;
+	top: 50%;
+	margin-top: -50px;  /* Hack to center it vertically */
+	right: 0;
+	bottom: 0;
+	height: 100px;
+	width: 14px;
+	background: url(config_button2.png) no-repeat center center;
+	cursor: default;
+}
+
+#config.hidden #configpaneltoggle {
+	background-image: url(config_button1.png);
+}
+
+.prettyform label {
+	display: block;
+	position: relative;
+	white-space: nowrap;
+}
+.prettyform label:hover {
+	background: #FFD;
+}
+.prettyform label input[type=text] {
+/*	position: absolute;
+	top: 0;
+	right: 0;*/
+}
+.prettyform .buttonrow {
+	text-align: center;
+	white-space: nowrap;
+}
+.prettyform .buttonrow button,
+.prettyform .buttonrow input {
+	padding-left: 1.5em;
+	padding-right: 1.5em;
+}
+</style>
 </head><body>
+
+<div class="bigcontainer">
 
 <div id="holder"></div>
 
-<form action="" method="post" onsubmit="insert_values();return false;"><div><input type="text" id="inserttext"><input type="submit" value="Insert!"></div></form>
-<form action="" method="post" onsubmit="search_values();return false;"><div><input type="text" id="searchtext"><input type="submit" value="Search!"></div></form>
-<form action="" method="post" onsubmit="remove_values();return false;"><div><input type="text" id="removetext"><input type="submit" value="Remove!"></div></form>
+<div id="config" class="hidden">
+<form id="configform" action="javascript://" class="prettyform">
+<label><input type="text" name="node_width" size="4"> Node width</label>
+<label><input type="text" name="node_height" size="4"> Node height</label>
+<label><input type="text" name="inter_tree_space" size="4"> Inter-tree space</label>
+<label><input type="checkbox" name="draw_lines"> Draw lines</label>
+<label><input type="checkbox" name="center_parent"> Center parent node</label>
+<label><input type="checkbox" name="debug_recalculate_subtree_width"> Debug recalculate_subtree_width()</label>
+<label><input type="checkbox" name="debug_recalculate_positions"> Debug recalculate_positions()</label>
+<label><input type="checkbox" name="auto_apply_changes"> Auto-apply changes</label>
+<div class="buttonrow">
+<input type="submit" value="Apply">
+<input type="reset" value="Reset">
+<input type="button" value="Close" id="configpanelclose">
+</div>
+</form>
+<div id="configpaneltoggle"></div>
+</div>
+
+</div>
+
+<form action="javascript://" onsubmit="insert_values()"><div><input type="text" id="inserttext"><input type="submit" value="Insert!"></div></form>
+<form action="javascript://" onsubmit="search_values()"><div><input type="text" id="searchtext"><input type="submit" value="Search!"></div></form>
+<form action="javascript://" onsubmit="remove_values()"><div><input type="text" id="removetext"><input type="submit" value="Remove!"></div></form>
 
 <div>
 <label><input type="checkbox" id="autoclear" checked>Autoclear</label>
 <button onclick="clear_debug();">Clear Debug</button>
 <button onclick="eval_func();">Eval</button>
+<button onclick="redraw_func();">Redraw tree</button>
 <button onclick="show_help();">Help!</button>
 </div>
 
