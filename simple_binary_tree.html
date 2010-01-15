@@ -1,0 +1,71 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en"><head><title>Simple Binary Tree</title>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<meta http-equiv="Content-Script-Type" content="text/javascript">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<meta name="author" content="Denilson F. de S&aacute;">
+<meta name="description" content="Interactive Simple Binary Tree written in JavaScript, using DOM.">
+<meta name="keywords" content="JavaScript, DOM, tree, binary tree, interactive">
+
+<!--link rel="stylesheet" type="text/css" href="tree1.css"-->
+<style type="text/css">
+html, body, form {
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+.treenode {
+	display: block;
+	position: absolute;
+	font-family: sans-serif;
+	font-size: 16px;
+	text-align: center;
+	width: 32px;
+	height: 16px;
+	line-height: 1em;
+	padding: 3px;
+	margin: 0;
+	border: outset 3px silver;
+	background: silver;
+	color: black;
+}
+
+#holder {
+	margin: auto;
+	border: inset 10px #EEE;
+	height: 20em;
+	position: relative;
+	overflow: auto;
+}
+
+
+#debug {
+	background: #FAA;
+	color: black;
+	font: 1em monospace;
+	white-space: pre;
+	border: #FAA ridge 1ex;
+	padding: 1ex;
+}
+</style>
+<script type="text/javascript" src="simple_binary_tree.js"></script>
+
+</head><body>
+
+<div id="holder"></div>
+
+<form action="" method="post" onsubmit="insert_values();return false;"><div><input type="text" id="inserttext"><input type="submit" value="Insert!"></div></form>
+<form action="" method="post" onsubmit="search_values();return false;"><div><input type="text" id="searchtext"><input type="submit" value="Search!"></div></form>
+<form action="" method="post" onsubmit="remove_values();return false;"><div><input type="text" id="removetext"><input type="submit" value="Remove!"></div></form>
+
+<div>
+<label><input type="checkbox" id="autoclear" checked>Autoclear</label>
+<button onclick="clear_debug();">Clear Debug</button>
+<button onclick="eval_func();">Eval</button>
+<button onclick="show_help();">Help!</button>
+</div>
+
+<div id="debug"></div>
+
+</body></html>
+

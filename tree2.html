@@ -1,0 +1,59 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en"><head><title>Trees</title>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<meta http-equiv="Content-Script-Type" content="text/javascript">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<meta name="author" content="Denilson F. de S&aacute;">
+<meta name="description" content="To be written...">
+<meta name="keywords" content="JavaScript, DOM">
+
+<!--link rel="stylesheet" type="text/css" href="tree1.css"-->
+<style type="text/css">
+.treenode {
+	display: block;
+	position: absolute;
+	font-family: sans-serif;
+	font-size: 16px;
+	text-align: center;
+	width: 32px;
+	height: 16px;
+	line-height: 1em;
+	padding: 3px;
+	margin: 0;
+	border: outset 3px silver;
+	background: silver;
+	color: black;
+}
+
+#holder {
+	margin: auto;
+	border: inset 10px #EEE;
+	height: 5em;
+	position: relative;
+}
+
+
+#debug {
+	background: #FAA;
+	font: 1em monospace;
+	white-space: pre;
+	border: #FAA ridge 1ex;
+	padding: 1ex;
+}
+</style>
+<script type="text/javascript" src="tree2.js"></script>
+
+</head><body>
+
+<div id="holder"></div>
+
+<button onclick="clear_debug();">Clear Debug</button>
+<button onclick="eval_func();">Eval</button>
+<!--button onclick="append_debug(eval(prompt('What variable?','a')+'.recalculate_subtree_width(1)')+'\n');">recalculate_subtree_width</button>
+<button onclick="append_debug(eval(prompt('What variable?','a')+'.recalculate_positions('+prompt('Which initial offset?','0')+',0)')+'\n');">recalculate_positions</button-->
+<button onclick="rootNode.recalculate_subtree_width(1);">recalculate_subtree_width</button>
+<button onclick="rootNode.recalculate_positions(0,0);">recalculate_positions</button>
+<div id="debug"></div>
+
+</body></html>
+
