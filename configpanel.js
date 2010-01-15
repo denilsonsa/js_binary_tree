@@ -69,8 +69,8 @@ function ConfigPanel() {
 
 ConfigPanel.prototype.toString = function() { return '[object ConfigPanel]'; };
 
-ConfigPanel.prototype.integer_fields = [ "node_width","node_height","inter_tree_space" ];
-ConfigPanel.prototype.boolean_fields = [ "draw_lines","center_parent","debug_recalculate_subtree_width","debug_recalculate_positions" ];
+ConfigPanel.integer_fields =ConfigPanel.prototype.integer_fields = [ "node_width","node_height","inter_tree_space","line_width" ];
+ConfigPanel.boolean_fields =ConfigPanel.prototype.boolean_fields = [ "draw_lines","center_parent","debug_recalculate_subtree_width","debug_recalculate_positions" ];
 
 
 

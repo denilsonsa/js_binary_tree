@@ -3,19 +3,27 @@
 
 /* TODO:
  *
- * - Implement "lines" to connect nodes. Should be easy, but will be a hack.
+ * - Implement "center tree". But how to find the available width?
  * - Implement animation (smooth moving of current nodes when the tree
  *   structure changes).
- * - Implement pre/post/in-order traversals (implement in TreeNode object,
- *   with a callback function passed as parameter; also implement in
- *   SimpleBinaryTree object, with a code like this: {if(this.rootNode) this.rootNode.prefix(...)} ).
  * - Implement a "detach_tree()" method which should detach (or reattach)
  *   the tree and all nodes.
  * - Modify the SimpleBinaryTree.setconfig() to update config on all tree nodes.
  */
 
+/* UNDER WORK:
+ * - Implement "lines" to connect nodes. Should be easy, but will be a hack.
+ *
+ * Must...
+ * - Write  SimpleBinaryTree.prototype.update_lines
+ * - Document it
+ * - make it work with configpanel (enable/disable draw lines, make line width work)
+ * - (?) write a function to update the tree display (which will call recalculate_subtree_width, recalculate_positions and update_lines)
+ */
+
 /* ChangeLog:
  *
+ * 2006-07-31: Implemented tree traversal.
  * 2006-05-03: Finished first full-functional version.
  * 2006-05-07: Added more documentation.
  *             Implemented TreeConfig object. Only draw_lines functionality is missing.
@@ -26,7 +34,7 @@
  * 2006-05-10: Now all input boxes are validated, and NaN will be ignored.
  *             ConfigPanel object is now finished. The code is now much cleaner.
  */
-var document_last_change="2006-05-10";
+var document_last_change="2006-07-31";
 
 
 //////////////////////////////////////////////////////////////////////
@@ -119,6 +127,21 @@ function remove_values() {
 
 function redraw_func() {
 	tree.update_positions();
+}
+
+
+
+function tree_traversal(order)
+{
+	var traversal_string="";
+	function trav_callback()
+	{
+		traversal_string+=this.getkey()+',';
+	}
+	tree.traverse(order,trav_callback);
+	traversal_string = traversal_string.substring(0,traversal_string.length-1);
+	auto_clear_debug();
+	append_debug(traversal_string+'\n');
 }
 
 

@@ -36,6 +36,8 @@
  *     insert(key)
  *     remove(key)
  *     removeNode(node)
+ *
+ *     traverse(order,callback,...) // Traverse the (sub)tree
  *  -properties:
  *     _config_			// Pointer to a TreeConfig object
  *
@@ -88,6 +90,82 @@ SimpleBinaryTree.prototype.update_positions = function() {
 		this.rootNode.recalculate_subtree_width(1);
 		this.rootNode.recalculate_positions(0,0);
 	}
+};
+
+// Warning: code written at 12 am. Maybe it is not written the best way it can.
+SimpleBinaryTree.prototype.update_lines = function() {
+
+	function new_line(x1,y1,x2,y2) {
+		var outer, inner;
+		var minx, maxx, leftborder, rightborder;
+		var line_width=2;  // This will be read from somewhere else, like treeconfig object.
+
+		if( y1>y2 ) {  // Swap them!
+			var t;
+			t=y1;
+			y1=y2;
+			y2=t;
+			t=x1;
+			x1=x2;
+			x2=t;
+		}
+
+		if( x1==x2 ) {
+			append_debug(this+'.update_lines(): Code for x1==x2 is not written yet!\n');
+		}
+		else if( y1==y2 ) {
+			append_debug(this+'.update_lines(): Code for y1==y2 is not written yet!\n');
+		}
+
+		outer=document.createElement("div");
+		outer.setAttribute("class","linehack");
+		inner=document.createElement("div");
+		inner.setAttribute("class","linehack");
+		outer.appendChild(inner);
+
+		minx=(x1<x2?x1:x2);
+		maxx=(x1>x2?x1:x2);
+
+		rightborder=(x1-x2>0?x1-x2:0);
+		leftborder=(x2-x1>0?x2-x1:0);
+
+/*
+		// As linhas seguintes eu sei que funcionam (exceto para delta_x ou delta_y muito pequenos)
+		outer.setAttribute("style","top: "+y1+"px; left: "+minx+"px; border-width: "+(y2-y1)+"px "+rightborder+"px 0 "+leftborder+"px;");
+//		inner.setAttribute("style","bottom: -"+line_width+"px; "+(rightborder>0?"left: ":"right: ")+line_width+"px; border-width: inherit;");
+		inner.setAttribute("style","bottom: 0; "+(rightborder>0?"left":"right")+": "+line_width+"px; border-width: "+(y2-y1-line_width>0?y2-y1-line_width:0)+"px "+(rightborder-line_width>0?rightborder-line_width:0)+"px 0 "+(leftborder-line_width>0?leftborder-line_width:0)+"px;");
+*/
+
+		inner.setAttribute("style","bottom: 0; "+(rightborder>0?"left":"right")+": "+line_width+"px; border-width: "+(y2-y1)+"px "+rightborder+"px 0 "+leftborder+"px;");
+		if( rightborder>0 ) rightborder+=line_width;
+		if( leftborder>0 ) leftborder+=line_width;
+		outer.setAttribute("style","top: "+y1+"px; left: "+minx+"px; border-width: "+(y2-y1+line_width)+"px "+rightborder+"px 0 "+leftborder+"px;");
+
+		return outer;
+	}
+
+	var t;
+	t=new_line(1,1, 61,61);
+	this.lines_container.appendChild(t);
+
+	t=new_line(121,1, 61,61);
+	this.lines_container.appendChild(t);
+
+	t=new_line(121,121, 61,61);
+	this.lines_container.appendChild(t);
+
+	t=new_line(1,121, 61,61);
+	this.lines_container.appendChild(t);
+
+	t=new_line(140,5, 142,65);
+	this.lines_container.appendChild(t);
+
+	// Well it works. It can draw lines good enough for me (or for this application).
+	// Lines almost vertical or almost horizontal (small delta_x or delta_y) will be a bit ugly.
+	// line_width must not be very big.
+
+	// These lines must not cross, or one will be on top of other!
+	// (if really need to cross them, must split in smaller parts)
 };
 
 // Will return two values:
@@ -179,6 +257,12 @@ SimpleBinaryTree.prototype.removeNode = function(node) {
 		node.setkey( tmp.getkey() );
 		this.removeNode(tmp);
 	}
+};
+
+
+SimpleBinaryTree.prototype.traverse = function() {
+	if( this.rootNode )
+		this.rootNode.traverse.apply(this.rootNode,arguments);
 };
 
 

@@ -34,6 +34,7 @@
  *     find_next_node(node)		// Find the node next to 'node' (i.e., the leftmost node in right subtree).
  *     recalculate_subtree_width(deep)  // Recalculates subtree width. If "deep", then do not use cached values.
  *     recalculate_positions(parent_x,parent_y)  // Recalculates the (x,y) position for the entire subtree.
+ *     traverse(order,callback,...) // Traverse the (sub)tree
  *  -properties:
  *     _key_			// Internal key
  *     _x_				// Internal x position
@@ -54,6 +55,10 @@
  *     parent			// This should not be set "manually", because it will break the tree.
  *     left_child
  *     right_child
+ *   -constants:
+ *     PREORDER
+ *     INORDER
+ *     POSTORDER
  *
  * TreeNode.elementNode.childNodes contains:
  *  -The text at position 0
@@ -211,6 +216,44 @@ TreeNode.prototype.recalculate_positions = function(parent_x, parent_y) {
 
 	if(this.config.debug_recalculate_positions)
 		append_debug(this+'.recalculate_positions('+parent_x+','+parent_y+') >> x='+this.getx()+' y='+this.gety()+'\n');
+};
+
+
+TreeNode.PREORDER  = TreeNode.prototype.PREORDER  = 0;
+TreeNode.INORDER   = TreeNode.prototype.INORDER   = 1;
+TreeNode.POSTORDER = TreeNode.prototype.POSTORDER = 2;
+
+
+// Traverses the tree, at specified order (pre, in, post), calling
+// callback function at each node.
+//
+// The node being visited is passed to callback as "this" object.
+//
+// All parameters after callback parameter are passed to callback function.
+TreeNode.prototype.traverse = function(order, callback) {
+	if(!callback) return;
+	var temp, args;
+
+	args=new Array();
+	for(var i=2; i<arguments.length; i++)
+		args[args.length]=arguments[i];
+
+	if(order==TreeNode.PREORDER)
+		callback.apply(this,args);
+
+	temp=this.getleft_child();
+	if(temp)
+		temp.traverse(order,callback);
+
+	if(order==TreeNode.INORDER)
+		callback.apply(this,args);
+
+	temp=this.getright_child();
+	if(temp)
+		temp.traverse(order,callback);
+
+	if(order==TreeNode.POSTORDER)
+		callback.apply(this,args);
 };
 
 // }}}

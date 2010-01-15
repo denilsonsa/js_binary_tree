@@ -25,13 +25,14 @@ function TreeConfig() {
 	this.node_width       = 32 + 2*3 + 2*3;
 	this.node_height      = 16 + 2*3 + 2*3;
 	this.inter_tree_space = this.node_width/2;
+	this.line_width       = 2;
 	this.draw_lines       = false;
 	this.center_parent    = false;
 	this.debug_recalculate_subtree_width =false;
 	this.debug_recalculate_positions     =false;
 }
 
-TreeConfig.prototype.toString = function() { return '[object TreeConfig: '+this.node_width+','+this.node_height+','+this.inter_tree_space+','+(this.draw_lines?'T':'F')+','+(this.center_parent?'T':'F')+']'; };
+TreeConfig.prototype.toString = function() { return '[object TreeConfig: '+this.node_width+','+this.node_height+','+this.inter_tree_space+','+this.line_width+','+(this.draw_lines?'T':'F')+','+(this.center_parent?'T':'F')+']'; };
 
 // }}}
 // End of TreeConfig object
